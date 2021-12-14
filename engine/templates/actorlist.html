@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>actorlist</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" id="nav-bar" style="background-color: whitesmoke">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            {% load static %}
+            <img src="../static/icon.jpg" id="brand" style="width: 50px">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <form class="form-inline" action="{% url 'search' %}" method="get">
+            <input id="search-box" name="keyword" class="form-control mr-sm-2" type="search"
+                aria-label="Search" style="background-color: white">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
+            <select name="types" class="custom-select custom-select-sm" id="selectsType" style="border: 20px">
+                <option value="movies" class="dropdown-item"> 影片 </option>
+                <option value="actors" class="dropdown-item"> 演员 </option>
+                <option value="comments" class="dropdown-item"> 影评 </option>
+            </select>
+        </form>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a href={% url 'home' %}>影视列表</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container-lg" style="margin-top: 1rem">
+        <span>  共{{ movie_total }}位演员，{{ total }}页；当前处在第{{ current_page }}页</span>
+        <div class="d-md-flex flex-row p-2 bd-highlight flex-wrap">
+            {% for movie in display_list %}
+            <div class="card" style="width: 11rem;margin: 1rem">
+                <a href={% url 'act_detail' movie.id %}>
+                    <img src="../static/pic/{{ movie.name }}.jpg" class="card-img-top" alt="...">
+                </a>
+                <div class="card-body">
+                    <a class="card-text" href={% url 'act_detail' movie.id %}>{{ movie.name }}</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <nav aria-label="Page navigation example" style="align-items: center; align-content: center; flex-wrap: wrap">
+        <ul class="pagination justify-content-center">
+            {% if display_list.has_previous %}
+                <li class="page-item ">
+                    <a class="page-link" href="?page=1">First</a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link" href="?page={{ display_list.previous_page_number }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">First</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+            {% endif %}
+
+            {% if current_page > 3 %}
+                <li class="page-item disabled" id="">
+                    <a class="page-link" href="#">···</a>
+                </li>
+            {% endif %}
+
+            {% for i in page_range %}
+                {% if i == current_page %}
+                <li class="page-item active" id="page-{{ i }}">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% else %}
+                <li class="page-item" id="page-{{ i }}">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if current_page < end %}
+                <li class="page-item disabled" id="">
+                    <a class="page-link" href="#">···</a>
+                </li>
+            {% endif %}
+
+            {% if display_list.has_next %}
+                <li class="page-item ">
+                    <a class="page-link" href="?page={{ display_list.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link" href="?page={{ display_list.paginator.num_pages }}">Last</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">Last</a></li>
+            {% endif %}
+
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroupFileAddon01" style="background-color: white; border: 0">跳转至</span>
+            </div>
+            <form method="get" action={% url 'actors' %}>
+                <input name="page" type="search" class="form-control mr-sm-2" style="max-width: 5rem">
+            </form>
+        </ul>
+    </nav>
+</body>
+<script>
+    let elements = document.getElementsByClassName('toModify')
+    function divideParas(){
+        for (let i = 0 ;i<elements.length; ++i){
+            let ele = elements[i]
+            let replacement = '</p><p>'
+            ele.innerHTML = ele.innerHTML.split('\n').join(replacement)
+        }
+    }
+    divideParas()
+</script>
+</html>

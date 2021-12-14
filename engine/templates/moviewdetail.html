@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>movie detail</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+    <script src="../static/script/main.js"></script>
+    <style>
+        .item{
+            padding-left: 3rem;
+            padding-top: 3rem;
+            padding-right: 3rem;
+        }
+        blockquote{
+            position: relative;
+            padding-left: 4.5rem;
+            padding-top: 0rem;
+        }
+        blockquote:before {
+            display: block;
+            padding-left: 10px;
+            position: absolute;
+            content: "\201C";
+            font-size: 4em;
+            margin-left: -0.6em;
+            margin-top: -0.4em;
+            color: #7a7a7a;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" id="nav-bar" style="background-color: whitesmoke">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            {% load static %}
+            <img src="../static/icon.jpg" id="brand" style="width: 50px">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <form class="form-inline" action="{% url 'search' %}" method="get">
+            <input id="search-box" name="keyword" class="form-control mr-sm-2" type="search"
+                aria-label="Search" style="background-color: white">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
+            <select name="types" class="custom-select custom-select-sm" id="selectsType" style="border: 20px">
+                <option value="movies" class="dropdown-item"> 影片 </option>
+                <option value="actors" class="dropdown-item"> 演员 </option>
+                <option value="comments" class="dropdown-item"> 影评 </option>
+            </select>
+        </form>
+    </nav>
+    <div class="container-lg" style="margin-top: 1rem">
+        <div class="d-md-flex flex-row p-2 bd-highlight">
+            {% load static %}
+            <div style="margin: 2rem; margin-top: 0; justify-items: center;">
+                <img src="{{ path }}" style="margin-top: 3.2em">
+            </div>
+            <div class="info">
+                <h2>{{ title }}</h2>
+                <p class="other toModify" onload="divideParas()">{{ other_info }}</p>
+            </div>
+        </div>
+        <div class="container-mid item">
+            <div class="intro toModify">
+                <h4>{{ title }}的简介</h4>
+                <p class="other toModify" onload="divideParas()">{{ brief }}</p>
+            </div>
+        </div>
+        <div class="item container-mid">
+            <h4>{{ title }}的演员表</h4>
+            <div class="d-md-flex flex-row p-2 bd-highlight flex-wrap">
+            {% for actor in actors %}
+                <div class="card" style="width: 9rem;margin: 1rem">
+                <a href={% url 'act_detail' actor.id %}>
+                    <img src="../static/pic/{{ actor.name }}.jpg" class="card-img-top" alt="...">
+                </a>
+                <div class="card-body">
+                    <a class="card-text" href={% url 'act_detail' actor.id %}>{{ actor.name }}</a>
+                </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <h4 class="item">{{ title }}的评价</h4>
+        <hr>
+        {% for comment in comments %}
+            <blockquote class="blockquote" style="font-size: 1rem">
+                <span class="toModify">{{ comment.content }}</span>
+                <footer class="blockquote-footer">豆瓣网友</footer>
+            </blockquote>
+            <hr>
+        {% endfor %}
+    </div>
+</body>
+<script>
+    let elements = document.getElementsByClassName('toModify')
+    function divideParas(){
+        for (let i = 0 ;i<elements.length; ++i){
+            let ele = elements[i]
+            let replacement = '</p><p>'
+            ele.innerHTML = ele.innerHTML.split('\n').join(replacement)
+        }
+    }
+    divideParas()
+</script>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>results</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+    <style>
+         .item{
+            padding-left: 3rem;
+            padding-top: 3rem;
+            padding-right: 3rem;
+        }
+        blockquote{
+            position: relative;
+            padding-left: 4.5rem;
+            padding-top: 0rem;
+        }
+        blockquote:before {
+            display: block;
+            padding-left: 10px;
+            position: absolute;
+            content: "\201C";
+            font-size: 4em;
+            margin-left: -0.6em;
+            margin-top: -0.4em;
+            color: #7a7a7a;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" id="nav-bar" style="background-color: whitesmoke">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            {% load static %}
+            <img src="../static/icon.jpg" id="brand" style="width: 50px">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <form class="form-inline" action="{% url 'search' %}" method="get">
+            <input id="search-box" name="keyword" class="form-control mr-sm-2" type="search" value="{{ keyword }}"
+                aria-label="Search" style="background-color: white">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
+            <select name="types" class="custom-select custom-select-sm" id="selectsType" style="border: 20px" aria-selected={{ type }}>
+                {% if type == 'movies' %}
+                    <option value="movies" class="dropdown-item" selected> 影片 </option>
+                {% else %}
+                    <option value="movies" class="dropdown-item"> 影片 </option>
+                {% endif %}
+                {% if type == 'actors' %}
+                    <option value="actors" class="dropdown-item" selected> 演员 </option>
+                {% else %}
+                    <option value="actors" class="dropdown-item"> 演员 </option>
+                {% endif %}
+                {% if type == 'comments' %}
+                    <option value="comments" class="dropdown-item" selected> 影评 </option>
+                {% else %}
+                    <option value="comments" class="dropdown-item"> 影评 </option>
+                {% endif %}
+            </select>
+        </form>
+    </nav>
+    <div class="container-lg" style="margin-top: 1rem">
+        {% if type == 'movies' %}
+            <span> 为您找到{{ size }}部影片，共{{ current_page }}/{{ total }}页，耗时{{ time }}</span>
+            <div class="d-md-flex flex-row p-2 bd-highlight flex-wrap">
+            {% for movie in results %}
+            <div class="card" style="width: 11rem;margin: 1rem">
+                <a href={% url 'mov_detail' movie.id %}>
+                    <img src="../static/pic/{{ movie.title }}.jpg" class="card-img-top" alt="..." >
+                </a>
+                <div class="card-body">
+                    <a class="card-text" href={% url 'mov_detail' movie.id %}>{{ movie.title }}</a>
+                </div>
+            </div>
+            {% endfor %}
+            </div>
+        {% elif type == 'actors' %}
+            <span> 为您找到{{ size }}位演员,共{{ current_page }}/{{ total }}页， 耗时{{ time }}</span>
+            <div class="d-md-flex flex-row p-2 bd-highlight flex-wrap">
+            {% for actor in results %}
+            <div class="card" style="width: 11rem;margin: 1rem">
+                <a href={% url 'act_detail' actor.id %}>
+                    <img src="../static/pic/{{ actor.name }}.jpg" class="card-img-top" alt="...">
+                </a>
+                <div class="card-body">
+                    <a class="card-text" href={% url 'act_detail' actor.id %}>{{ actor.name }}</a>
+                </div>
+            </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <span> 为您找到{{ size }}条影评，共{{ current_page }}/{{ total }}页， 耗时{{ time }}</span>
+            <div class="d-md-flex flex-row p-2 bd-highlight flex-wrap">
+                {% for comment in results %}
+                    <blockquote class="blockquote" style="font-size: 1rem">
+                        <span class="toModify">{{ comment.content }}</span>
+                        <a href={% url 'mov_detail' comment.movie.id %}><footer class="blockquote-footer">{{ comment.movie.title }}</footer></a>
+                    </blockquote>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <nav aria-label="Page navigation example" style="align-items: center; align-content: center; flex-wrap: wrap">
+        <ul class="pagination justify-content-center">
+            {% if results.has_previous %}
+                <li class="page-item ">
+                    <a class="page-link" href="?page=1&types={{ type }}&keyword={{ keyword }}">First</a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link" href="?page={{ results.previous_page_number }}&types={{ type }}&keyword={{ keyword }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">First</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+            {% endif %}
+
+            {% if current_page > 3 %}
+                <li class="page-item disabled" id="">
+                    <a class="page-link" href="#">···</a>
+                </li>
+            {% endif %}
+
+            {% for i in page_range %}
+                {% if i == current_page %}
+                <li class="page-item active" id="page-{{ i }}">
+                    <a class="page-link" href="?page={{ i }}&types={{ type }}&keyword={{ keyword }}">{{ i }}</a>
+                </li>
+                {% else %}
+                <li class="page-item" id="page-{{ i }}">
+                    <a class="page-link" href="?page={{ i }}&types={{ type }}&keyword={{ keyword }}">{{ i }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if current_page < end %}
+                <li class="page-item disabled" id="">
+                    <a class="page-link" href="#">···</a>
+                </li>
+            {% endif %}
+
+            {% if results.has_next %}
+                <li class="page-item ">
+                    <a class="page-link" href="?page={{ results.next_page_number }}&types={{ type }}&keyword={{ keyword }}">Next</a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link" href="?page={{ results.paginator.num_pages }}&types={{ type }}&keyword={{ keyword }}">Last</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">Last</a></li>
+            {% endif %}
+            <form  class="row" style="margin-left: 0.5rem;margin-right: -0.4rem">
+                <input id="jumpinput"  type="search" class="form-control mr-sm-2" style="max-width: 5rem" oninput="setbutton()">
+            </form>
+                <li class="page-item disabled" id="jump" type="submit"><a class="page-link">跳转至</a></li>
+        </ul>
+    </nav>
+    <script>
+        function setbutton() {
+            let button = document.getElementById('jump')
+            button.className = "page-item "
+            let str = document.getElementById('jumpinput').value
+            if(str === "")
+                str = "1"
+            let keyword = "{{ keyword }}", type = "{{ type }}"
+            button.innerHTML = '<a class="page-link" href='+ "?page=" + str + "&keyword=" + keyword + "&types=" + type +'>跳转!</a>'
+        }
+    </script>
+</body>
+</html>
